@@ -1,0 +1,42 @@
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# ── Node / Frontend ──────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.vercel
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs & Debug ──────────────────────────────────────────────────────────────
+*.log
+debug.log
+OTP.txt
+*.sql
+!supabase_migration.sql
+!whatsapp_sessions_migration.sql
+tunnel.txt
