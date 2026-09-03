@@ -51,8 +51,8 @@ export default function Login() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-stone-50 text-slate-800">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-3xl shadow-xl border border-stone-200">
+    <div className="flex items-center justify-center min-h-screen bg-stone-50 text-slate-800 p-4">
+      <div className="w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-3xl shadow-xl border border-stone-200">
         
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="bg-sky-100 p-3 rounded-2xl text-sky-600">

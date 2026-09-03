@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import Toast from '../components/Toast';
 import { 
   ShieldCheck, LayoutDashboard, Building2, Receipt, LogOut, 
-  PlusCircle, User, Phone, Mail, Lock, X, Trash2, Key, Users, FileText, Send, Eye, EyeOff
+  PlusCircle, User, Phone, Mail, Lock, X, Trash2, Key, Users, FileText, Send, Eye, EyeOff, Menu
 } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000'; 
@@ -14,6 +14,7 @@ export default function MasterDashboard() {
   const [session, setSession] = useState(null);
   const [labs, setLabs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // New Lab Form
   const [newLab, setNewLab] = useState({ email: '', password: '', business_name: '', exotel_number: '', collector_phone: '', receptionist_phone: '', whatsapp_phone_number_id: '', whatsapp_access_token: '', services: [], financial_password: '' });
@@ -281,13 +282,29 @@ export default function MasterDashboard() {
   return (
     <div className="min-h-screen flex text-slate-800">
       
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar - Warm Trustworthy Vibe */}
-      <aside className="w-64 bg-white border-r border-stone-200 hidden md:flex flex-col shadow-sm">
-        <div className="p-6 flex items-center gap-3 border-b border-stone-100">
-          <div className="bg-sky-600 p-2 rounded-lg">
-            <ShieldCheck className="text-white w-6 h-6" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-stone-200 flex-col shadow-xl md:shadow-sm md:static md:flex transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0 flex' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-6 flex items-center justify-between border-b border-stone-100">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="bg-sky-600 p-2 rounded-lg flex-shrink-0">
+              <ShieldCheck className="text-white w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 truncate">LabSaaS</h2>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900">LabSaaS</h2>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
@@ -307,20 +324,28 @@ export default function MasterDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* Header */}
       <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'success' })} />
-        <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-10 px-8 py-5 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Lab Network</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage your multi-tenant SaaS clients.</p>
+        <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 z-10 px-4 md:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden text-slate-600 hover:text-slate-900 flex-shrink-0"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 truncate">Lab Network</h1>
+              <p className="text-xs md:text-sm text-slate-500 mt-1 truncate">Manage your multi-tenant SaaS clients.</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full text-sm font-medium text-emerald-700 border border-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> SuperAdmin Access
+          <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-50 rounded-full text-xs sm:text-sm font-medium text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> SuperAdmin
           </div>
         </header>
 
-        <div className="p-8 max-w-7xl mx-auto space-y-8">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 flex-1 overflow-y-auto min-w-0">
           
           {/* Create New Lab Form */}
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
@@ -543,7 +568,7 @@ export default function MasterDashboard() {
               </h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full min-w-[900px] text-left">
                 <thead className="bg-stone-50 border-b border-stone-200 text-slate-500 text-sm">
                   <tr>
                     <th className="px-6 py-4 font-medium">Business Name</th>

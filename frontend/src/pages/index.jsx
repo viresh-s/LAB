@@ -16,44 +16,45 @@ export default function Home() {
 
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
           <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-tr from-sky-600 to-indigo-600 p-2.5 rounded-xl shadow-sm">
-              <ShieldCheck className="text-white w-6 h-6" />
+            <div className="bg-gradient-to-tr from-sky-600 to-indigo-600 p-2 sm:p-2.5 rounded-xl shadow-sm">
+              <ShieldCheck className="text-white w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <span className="text-2xl font-extrabold tracking-tight text-slate-900">LabSaaS</span>
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">LabSaaS</span>
           </div>
           
           <div className="flex items-center gap-4">
             <Link 
               href="/login" 
-              className="px-6 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
+              className="px-3 sm:px-6 py-2 sm:py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
             >
               Sign In
             </Link>
             <Link 
               href="/login" 
-              className="group flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-full shadow-lg shadow-slate-900/20 transition-all transform hover:-translate-y-0.5"
+              className="group flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-medium rounded-full shadow-lg shadow-slate-900/20 transition-all transform hover:-translate-y-0.5"
             >
-              Lab Dashboard
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span className="hidden sm:inline">Lab Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-32 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-20 sm:pb-32 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <span className="flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-sky-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
           </span>
-          <span className="text-sm font-medium text-slate-600">The Future of Lab Bookings is Here</span>
+          <span className="text-xs sm:text-sm font-medium text-slate-600">The Future of Lab Bookings is Here</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-          Automate Bookings with <br className="hidden md:block" />
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+          Automate Bookings with <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-indigo-600">
             AI Voice & WhatsApp
           </span>

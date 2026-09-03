@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { 
   LayoutDashboard, FileText, LogOut, 
   UploadCloud, Download, CheckCircle, Activity, ShieldCheck, CreditCard,
-  Users, Pencil, X, Save, Copy, Search, Eye, EyeOff
+  Users, Pencil, X, Save, Copy, Search, Eye, EyeOff, Menu
 } from 'lucide-react';
 import Toast from '../components/Toast';
 
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [uploadingId, setUploadingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Financials State
   const [financialsPassword, setFinancialsPassword] = useState('');
@@ -320,30 +321,46 @@ export default function Dashboard() {
     <>
     <div className="min-h-screen flex text-slate-800">
       
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar - Warm Trustworthy Vibe */}
-      <aside className="w-64 bg-white border-r border-stone-200 hidden md:flex flex-col shadow-sm">
-        <div className="p-6 flex items-center gap-3 border-b border-stone-100">
-          <div className="bg-sky-600 p-2 rounded-lg">
-            <ShieldCheck className="text-white w-6 h-6" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-stone-200 flex-col shadow-xl md:shadow-sm md:static md:flex transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0 flex' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-6 flex items-center justify-between border-b border-stone-100">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="bg-sky-600 p-2 rounded-lg flex-shrink-0">
+              <ShieldCheck className="text-white w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 truncate">
+              {metrics?.lab_name || 'LabSaaS'}
+            </h2>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 truncate">
-            {metrics?.lab_name || 'LabSaaS'}
-          </h2>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
           <button 
-            onClick={() => setActiveTab('overview')}
+            onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl font-medium transition-colors ${activeTab === 'overview' ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'}`}>
             <LayoutDashboard className="w-5 h-5" /> Overview
           </button>
           <button 
-            onClick={() => setActiveTab('records')}
+            onClick={() => { setActiveTab('records'); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl font-medium transition-colors ${activeTab === 'records' ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'}`}>
             <FileText className="w-5 h-5" /> Patient Records
           </button>
           <button 
-            onClick={() => { setActiveTab('financials'); setIsFinancialsUnlocked(false); setFinancialsPassword(''); }}
+            onClick={() => { setActiveTab('financials'); setIsFinancialsUnlocked(false); setFinancialsPassword(''); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl font-medium transition-colors ${activeTab === 'financials' ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'}`}>
             <CreditCard className="w-5 h-5" /> Financials
           </button>
@@ -360,20 +377,24 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-10 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div className="md:hidden flex items-center gap-2 mb-2">
-              <ShieldCheck className="text-sky-600 w-5 h-5" />
-              <span className="font-bold text-slate-900">{metrics?.lab_name || 'LabSaaS'}</span>
+        <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 z-10 px-4 md:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden text-slate-600 hover:text-slate-900 flex-shrink-0"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 truncate">
+                {activeTab === 'overview' ? 'Overview' : activeTab === 'records' ? 'Patient Records' : 'Financials'}
+              </h1>
+              <p className="text-xs md:text-sm text-slate-500 mt-1 truncate">
+                {activeTab === 'overview' ? "Welcome back! Here's what's happening today." : activeTab === 'records' ? "View and filter historical patient data." : "Protected financial metrics."}
+              </p>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900">
-              {activeTab === 'overview' ? 'Overview' : activeTab === 'records' ? 'Patient Records' : 'Financials'}
-            </h1>
-            <p className="text-xs md:text-sm text-slate-500 mt-1">
-              {activeTab === 'overview' ? "Welcome back! Here's what's happening today." : activeTab === 'records' ? "View and filter historical patient data." : "Protected financial metrics."}
-            </p>
           </div>
           <div className="flex gap-2 md:gap-3 w-full md:w-auto">
             <button 
@@ -393,7 +414,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 flex-1 overflow-y-auto min-w-0">
           
           {/* WhatsApp Not Configured Alert */}
           {metrics && metrics.whatsapp_configured === false && (
@@ -526,7 +547,7 @@ export default function Dashboard() {
                   </h3>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                  <table className="w-full min-w-[600px] text-left">
                     <thead className="bg-stone-50 border-b border-stone-200 text-slate-500 text-sm">
                       <tr>
                         <th className="px-6 py-4 font-medium">Test Type</th>
@@ -573,7 +594,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
-                <table className="w-full text-left">
+                <table className="w-full min-w-[800px] text-left">
                   <thead className="bg-stone-50 border-b border-stone-200 text-slate-500 text-sm sticky top-0 z-10 shadow-sm">
                     <tr>
                       <th className="px-6 py-4 font-medium">Patient Details</th>
@@ -725,8 +746,8 @@ export default function Dashboard() {
       {/* Edit Patient Modal */}
       {editingPatient && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center">
+          <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="p-5 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center flex-shrink-0">
               <div>
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <Pencil className="w-5 h-5 text-sky-600" /> Edit Patient
@@ -738,7 +759,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
+            <form onSubmit={handleSaveEdit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-1.5">Patient Name</label>
                 <input
@@ -792,8 +813,8 @@ export default function Dashboard() {
       {/* Walk-in Booking Modal */}
       {isWalkinOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50 flex-shrink-0">
               <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                 <Users className="w-5 h-5 text-emerald-500" /> New Walk-in Booking
               </h3>
@@ -801,7 +822,7 @@ export default function Dashboard() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleWalkinSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleWalkinSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Patient Name</label>
                 <input 
