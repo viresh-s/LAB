@@ -128,11 +128,18 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-sky-500" />
-            <span className="text-xl font-bold text-white">LabSaaS</span>
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-6 h-6 text-sky-500" />
+              <span className="text-xl font-bold text-white">LabSaaS</span>
+            </div>
+            <p className="text-sm">© {new Date().getFullYear()} LabBooking SaaS. All rights reserved.</p>
           </div>
-          <p className="text-sm">© {new Date().getFullYear()} LabBooking SaaS. All rights reserved.</p>
+          <div className="text-sm text-slate-400 text-center md:text-right">
+            Developed by Viresh <br className="sm:hidden" />
+            <span className="hidden sm:inline"> | </span> 
+            Contact: 6362268616
+          </div>
         </div>
       </footer>
     </div>

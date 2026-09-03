@@ -115,7 +115,11 @@ export default function Login() {
           </button>
         </form>
 
-
+        <div className="mt-8 text-center text-sm text-slate-500 pb-4">
+          Developed by Viresh <br className="sm:hidden" />
+          <span className="hidden sm:inline"> | </span> 
+          Contact: 6362268616
+        </div>
 
       </div>
     </div>

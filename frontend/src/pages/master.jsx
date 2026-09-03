@@ -345,7 +345,7 @@ export default function MasterDashboard() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 flex-1 overflow-y-auto min-w-0">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 flex-1 overflow-y-auto min-w-0 pb-24 md:pb-8">
           
           {/* Create New Lab Form */}
           <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
@@ -651,6 +651,14 @@ export default function MasterDashboard() {
               </table>
             </div>
           </div>
+          
+          {/* Footer */}
+          <div className="mt-8 text-center text-sm text-slate-500 pb-4">
+            Developed by Viresh <br className="sm:hidden" />
+            <span className="hidden sm:inline"> | </span> 
+            Contact: 6362268616
+          </div>
+
         </div>
       </main>
 
