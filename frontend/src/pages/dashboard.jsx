@@ -610,7 +610,7 @@ export default function Dashboard() {
                             <StatusBadge status={booking.status} reportLink={booking.report_link} paymentStatus={booking.payment_status} />
                           </td>
                           <td className="px-6 py-4">
-                            <PaymentBadge amount={booking.payment_amount} />
+                            <PaymentBadge paymentStatus={booking.payment_status} amount={booking.payment_amount} />
                           </td>
                           <td className="px-6 py-4 text-right flex justify-end gap-2">
                             {booking.report_link && (
@@ -923,11 +923,11 @@ function StatusBadge({ status, reportLink, paymentStatus }) {
   );
 }
 
-function PaymentBadge({ amount }) {
-  if (amount) {
+function PaymentBadge({ paymentStatus, amount }) {
+  if (paymentStatus === 'paid' || amount) {
     return (
       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-        Paid (₹{amount})
+        Paid {amount ? `(₹${amount})` : ''}
       </span>
     );
   }
