@@ -396,61 +396,64 @@ async def _process_whatsapp_payload(payload: dict):
         sender_role = "collector"
 
     # ── 3. Parse and Process using LLM Agent ─────────────────────────────────
-    if sender_role:
-        from app.graph.whatsapp_agent import process_whatsapp_message
-        reply_msg = await process_whatsapp_message(
-            text=body, 
-            sender_role=sender_role, 
-            lab_id=lab_id, 
-            sender_phone=from_number
-        )
-    else:
-        # Route to Patient Chatbot
-        from app.graph.patient_whatsapp_agent import process_patient_whatsapp_message
-        
-        session_key = f"whatsapp_{from_number}_{lab_id}"
-        session_data = {}
-        
-        # 1. Load persistent session from DB
-        try:
-            session_res = supabase.table("whatsapp_sessions").select("data").eq("session_key", session_key).execute()
-            if session_res.data:
-                session_data = session_res.data[0]["data"]
-        except Exception as e:
-            log.error("[whatsapp] Error fetching session: %s", e)
-        
-        log.info("[whatsapp] LOADED session for %s: intent=%s name=%s age=%s phone=%s test=%s",
-                 session_key, session_data.get("intent"), session_data.get("name"),
-                 session_data.get("age"), session_data.get("patient_phone"), session_data.get("test_type"))
+    try:
+        if sender_role:
+            from app.graph.whatsapp_agent import process_whatsapp_message
+            reply_msg = await process_whatsapp_message(
+                text=body, 
+                sender_role=sender_role, 
+                lab_id=lab_id, 
+                sender_phone=from_number
+            )
+        else:
+            # Route to Patient Chatbot
+            from app.graph.patient_whatsapp_agent import process_patient_whatsapp_message
             
-        reply_msg = await process_patient_whatsapp_message(
-            text=body,
-            sender_phone=from_number,
-            lab_id=lab_id,
-            session=session_data,
-            services=services,
-            business_name=business_name
-        )
-        
-        log.info("[whatsapp] SAVING session for %s: intent=%s name=%s age=%s phone=%s test=%s",
-                 session_key, session_data.get("intent"), session_data.get("name"),
-                 session_data.get("age"), session_data.get("patient_phone"), session_data.get("test_type"))
-        
-        # 2. Save persistent session back to DB
-        try:
-            supabase.table("whatsapp_sessions").upsert({
-                "session_key": session_key,
-                "data": session_data
-            }, on_conflict="session_key").execute()
-        except Exception as e:
-            log.error("[whatsapp] Error saving session: %s", e)
+            session_key = f"whatsapp_{from_number}_{lab_id}"
+            session_data = {}
+            
+            # 1. Load persistent session from DB
+            try:
+                session_res = supabase.table("whatsapp_sessions").select("data").eq("session_key", session_key).execute()
+                if session_res.data:
+                    session_data = session_res.data[0]["data"]
+            except Exception as e:
+                log.error("[whatsapp] Error fetching session: %s", e)
+            
+            log.info("[whatsapp] LOADED session for %s: intent=%s name=%s age=%s phone=%s test=%s",
+                     session_key, session_data.get("intent"), session_data.get("name"),
+                     session_data.get("age"), session_data.get("patient_phone"), session_data.get("test_type"))
+                
+            reply_msg = await process_patient_whatsapp_message(
+                text=body,
+                sender_phone=from_number,
+                lab_id=lab_id,
+                session=session_data,
+                services=services,
+                business_name=business_name
+            )
+            
+            log.info("[whatsapp] SAVING session for %s: intent=%s name=%s age=%s phone=%s test=%s",
+                     session_key, session_data.get("intent"), session_data.get("name"),
+                     session_data.get("age"), session_data.get("patient_phone"), session_data.get("test_type"))
+            
+            # 2. Save persistent session back to DB
+            try:
+                supabase.table("whatsapp_sessions").upsert({
+                    "session_key": session_key,
+                    "data": session_data
+                }, on_conflict="session_key").execute()
+            except Exception as e:
+                log.error("[whatsapp] Error saving session: %s", e)
 
-    await _send_wa_reply(
-        from_number, reply_msg,
-        lab_phone_number_id=wa_phone_id,
-        lab_access_token=wa_token,
-    )
-    log.info("[whatsapp] Agent replied: %s", reply_msg)
+        await _send_wa_reply(
+            from_number, reply_msg,
+            lab_phone_number_id=wa_phone_id,
+            lab_access_token=wa_token,
+        )
+        log.info("[whatsapp] Agent replied: %s", reply_msg)
+    except Exception as e:
+        log.error("[whatsapp] CRITICAL ERROR in message processing: %s", e, exc_info=True)
 
 
 @router.post("/whatsapp")
