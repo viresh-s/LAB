@@ -475,6 +475,9 @@ class PatientUpdateRequest(_BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     test_type: Optional[str] = None
+    payment_status: Optional[str] = None
+    payment_method: Optional[str] = None
+    payment_amount: Optional[float] = None
 
 
 @router.patch("/patient/{patient_id}")
@@ -494,7 +497,7 @@ async def update_patient(
     try:
         res = (
             supabase.table("patients")
-            .select("lab_id")
+            .select("lab_id, payment_status")
             .eq("id", patient_id)
             .single()
             .execute()
@@ -515,7 +518,49 @@ async def update_patient(
         raise HTTPException(400, "No fields provided to update.")
 
     try:
-        supabase.table("patients").update(update_data).eq("id", patient_id).eq("lab_id", lab_id).execute()
+        # If payment is being updated to 'paid', run the payment graph
+        if update_data.get("payment_status") == "paid":
+            # Check if it wasn't already paid
+            prev_payment_status = booking.get("payment_status")
+            if prev_payment_status != "paid":
+                # Run payment graph which will update DB and dispatch report if available
+                from app.graph.nodes.report import create_payment_graph
+                graph = create_payment_graph()
+                
+                from app.graph.state import PatientData
+                result = await graph.ainvoke({
+                    "event_type":       "manual_payment",
+                    "lab_id":           lab_id,
+                    "patient_id":       None,
+                    "user_text":        None,
+                    "agent_speech":     None,
+                    "patient_data":     PatientData(),
+                    "missing_fields":   [],
+                    "dispatch_success": False,
+                    "booking_id":       patient_id,
+                    "status":           None,
+                    "collector_phone":  None,
+                    "payment_amount":   update_data.get("payment_amount"),
+                    "payment_method":   update_data.get("payment_method", "cash"),
+                    "report_link":      None,
+                })
+                
+                # Remove payment fields from update_data since the graph handled them
+                update_data.pop("payment_status", None)
+                update_data.pop("payment_amount", None)
+                update_data.pop("payment_method", None)
+                
+                # If there are still other fields (name, phone) update them
+                if update_data:
+                    supabase.table("patients").update(update_data).eq("id", patient_id).eq("lab_id", lab_id).execute()
+                    
+                log.info("[lab_api] Patient %s updated via payment graph & manual edit", patient_id)
+                return {"status": "success", "patient_id": patient_id, "report_dispatched": result.get("dispatch_success", False)}
+
+        # Normal update
+        if update_data:
+            supabase.table("patients").update(update_data).eq("id", patient_id).eq("lab_id", lab_id).execute()
+        
         log.info("[lab_api] Patient %s updated: %s", patient_id, update_data)
         return {"status": "success", "patient_id": patient_id, "updated": update_data}
     except Exception as e:
