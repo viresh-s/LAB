@@ -346,6 +346,7 @@ async def _process_whatsapp_payload(payload: dict):
         
         to_number = _normalize_phone(changes["metadata"]["display_phone_number"])
         from_number = _normalize_phone(message_obj["from"])
+        wa_phone_id = changes["metadata"].get("phone_number_id")
         
         # We only handle text messages for now
         if message_obj["type"] != "text":
@@ -363,17 +364,21 @@ async def _process_whatsapp_payload(payload: dict):
 
     # ── 1. Resolve lab from incoming Meta number ─────────────────────────
     try:
-        lab_res = (
-            supabase.table("labs")
-            .select("id, business_name, services, receptionist_phone, collector_phone, "
-                    "whatsapp_phone_number_id, whatsapp_access_token")
-            .like("exotel_number", f"%{to_number[-10:]}%")
-            .single()
-            .execute()
-        )
-        lab = lab_res.data
+        lab = None
+        # Try finding lab by whatsapp_phone_number_id first (most accurate for Meta webhooks)
+        if wa_phone_id:
+            lab_res = supabase.table("labs").select("id, business_name, services, receptionist_phone, collector_phone, whatsapp_phone_number_id, whatsapp_access_token").eq("whatsapp_phone_number_id", str(wa_phone_id)).execute()
+            if lab_res.data:
+                lab = lab_res.data[0]
+                
+        # Fallback to exotel_number if not found
+        if not lab:
+            lab_res = supabase.table("labs").select("id, business_name, services, receptionist_phone, collector_phone, whatsapp_phone_number_id, whatsapp_access_token").like("exotel_number", f"%{to_number[-10:]}%").execute()
+            if lab_res.data:
+                lab = lab_res.data[0]
+                
     except Exception as e:
-        log.warning("[whatsapp] Could not resolve lab from number %s: %s", to_number, e)
+        log.warning("[whatsapp] Could not resolve lab from number %s or phone ID %s: %s", to_number, wa_phone_id, e)
         return
 
     if not lab:
