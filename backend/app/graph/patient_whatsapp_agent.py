@@ -145,21 +145,27 @@ async def process_patient_whatsapp_message(
 
     log.info(f"[patient_whatsapp_agent] Extracted from CURRENT message: {extracted.model_dump()}")
 
-    # ── Strict Anti-Hallucination Check for Phone Number ──
+    # ── Robust Phone Number Extraction & Validation ──
     if extracted.patient_phone:
         clean_extracted_phone = "".join(filter(str.isdigit, extracted.patient_phone))[-10:]
         clean_sender_phone = "".join(filter(str.isdigit, sender_phone))[-10:]
         
-        if clean_extracted_phone == clean_sender_phone:
-            # If it extracted the sender's phone, ensure they actually agreed or typed it
-            import re
-            has_10_digits = bool(re.search(r'\d{10}', text.replace(' ', '')))
-            affirmative_words = [r"\byes\b", r"\byep\b", r"\byeah\b", r"\bha\b", r"\bhaan\b", r"\buse\b", r"\bcurrent\b", r"\bsame\b", r"\bthis\b", r"\bmy number\b", r"\byahi\b", r"\bide\b"]
-            has_affirmative = any(re.search(word, text.lower()) for word in affirmative_words)
-            
-            if not has_10_digits and not has_affirmative:
+        import re
+        has_10_digits = bool(re.search(r'\d{10}', text.replace(' ', '')))
+        affirmative_words = [r"\byes\b", r"\byep\b", r"\byeah\b", r"\bha\b", r"\bhaan\b", r"\buse\b", r"\bcurrent\b", r"\bsame\b", r"\bthis\b", r"\bmy number\b", r"\byahi\b", r"\bide\b", r"\bidde\b", r"\bidhe\b", r"\bille\b", r"\bhoudhu\b"]
+        has_affirmative = any(re.search(word, text.lower()) for word in affirmative_words)
+        
+        if len(clean_extracted_phone) == 10:
+            if clean_extracted_phone == clean_sender_phone and not has_10_digits and not has_affirmative:
                 log.warning(f"[patient_whatsapp_agent] BLOCKED HALLUCINATION: LLM assumed sender_phone {clean_sender_phone} but user didn't explicitly agree. Text: '{text}'")
                 extracted.patient_phone = None
+            else:
+                extracted.patient_phone = clean_extracted_phone
+        elif has_affirmative or any(word.replace(r'\b', '') in extracted.patient_phone.lower() for word in affirmative_words):
+            # LLM extracted affirmative text like "idde", or user text had affirmative
+            extracted.patient_phone = clean_sender_phone
+        else:
+            extracted.patient_phone = None
 
     # ── Merge extracted fields into session (ONLY overwrite if LLM returned non-null) ──
     if extracted.intent != "unknown":
