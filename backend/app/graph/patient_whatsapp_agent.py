@@ -73,6 +73,10 @@ async def process_patient_whatsapp_message(
     else:
         services_str = "No specific pricing listed, ask them to confirm at the clinic."
 
+    # ── Auto-fill Phone Number ──
+    if not session.get("patient_phone"):
+        session["patient_phone"] = "".join(filter(str.isdigit, sender_phone))[-10:]
+
     # ── Track conversation history in session ────────────────────────────
     if "history" not in session:
         session["history"] = []
@@ -264,8 +268,6 @@ async def process_patient_whatsapp_message(
             missing.append("name (Ask what their full name is)")
         elif not session.get("age"): 
             missing.append("age (Ask what their age is)")
-        elif not session.get("patient_phone"): 
-            missing.append("patient_phone (Ask ONLY: 'Would you like to use your current WhatsApp number for this booking, or a different 10-digit number?')")
         elif not session.get("test_type"): 
             missing.append("test_type (Ask them what specific test they want to book)")
 
@@ -299,7 +301,8 @@ async def process_patient_whatsapp_message(
                 STRICT BOOKING RULES:
                 - ONLY ask for the specific missing fields listed above.
                 - DO NOT ask for preferred timings, dates, or addresses. Just get the required fields.
-                - If the user communicates in a local Indian language (like Kannada, Hindi, Telugu), you MUST reply NATURALLY in that same language, written in English script (e.g. Kanglish). Make it sound like a friendly local chatting on WhatsApp (e.g. "Namaskara! Nimma hesaru yenu?"). Do NOT use overly formal, weird, or robotic grammar like "aanu kelasa madalu".
+                - MATCH THE USER'S LANGUAGE EXACTLY. If the user speaks English, reply in English. If they speak Hindi, reply in Hinglish. If they speak Kannada, reply in Kanglish.
+                - Keep the response naturally conversational and local to WhatsApp (e.g., "Namaskara! Nimma hesaru yenu?", "Hi! What's your name?"). Do NOT default to Kannada if they speak English.
                 
                 STRICT SECURITY RULES (NEVER VIOLATE THESE):
                 - You are ONLY a lab receptionist. You can ONLY discuss: booking tests, collecting patient details, test status, lab services.
