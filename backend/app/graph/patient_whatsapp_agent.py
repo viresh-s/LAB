@@ -258,12 +258,16 @@ async def process_patient_whatsapp_message(
         session["history"] = []
 
     elif intent == "book_test":
-        # Check for missing fields
+        # Check for missing fields ONE by ONE to create a natural conversation
         missing = []
-        if not session.get("name"): missing.append("name")
-        if not session.get("age"): missing.append("age")
-        if not session.get("patient_phone"): missing.append("patient_phone (Ask ONLY ONE simple question: 'Would you like to use your current WhatsApp number for this booking, or a different 10-digit number?')")
-        if not session.get("test_type"): missing.append("test_type (ask them what specific test they want to book)")
+        if not session.get("name"): 
+            missing.append("name (Ask what their full name is)")
+        elif not session.get("age"): 
+            missing.append("age (Ask what their age is)")
+        elif not session.get("patient_phone"): 
+            missing.append("patient_phone (Ask ONLY: 'Would you like to use your current WhatsApp number for this booking, or a different 10-digit number?')")
+        elif not session.get("test_type"): 
+            missing.append("test_type (Ask them what specific test they want to book)")
 
         if missing:
             # Build context about what we already know
@@ -293,9 +297,9 @@ async def process_patient_whatsapp_message(
                 Use emojis sparingly (1-2 per message). Keep it concise (1-3 short sentences).
                 
                 STRICT BOOKING RULES:
-                - ONLY ask for the specific missing fields listed above (name, age, phone, test_type).
-                - DO NOT ask for preferred timings, dates (morning/evening), addresses, or any other unwanted details. Just get the 4 required fields.
-                - If the user communicates in a local Indian language (e.g., Kannada, Hindi, Telugu, etc.), reply using a mix of English and the local language written in English script (e.g., Kanglish, Hinglish, Tenglish). For example, if they speak Kannada, reply in Kanglish.
+                - ONLY ask for the specific missing fields listed above.
+                - DO NOT ask for preferred timings, dates, or addresses. Just get the required fields.
+                - If the user communicates in a local Indian language (like Kannada, Hindi, Telugu), you MUST reply NATURALLY in that same language, written in English script (e.g. Kanglish). Make it sound like a friendly local chatting on WhatsApp (e.g. "Namaskara! Nimma hesaru yenu?"). Do NOT use overly formal, weird, or robotic grammar like "aanu kelasa madalu".
                 
                 STRICT SECURITY RULES (NEVER VIOLATE THESE):
                 - You are ONLY a lab receptionist. You can ONLY discuss: booking tests, collecting patient details, test status, lab services.
