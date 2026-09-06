@@ -88,6 +88,29 @@ export default function Dashboard() {
     }
   }, [startDate, endDate, activeTab]);
 
+  // Realtime Subscription for Auto-Update
+  useEffect(() => {
+    if (!session) return;
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'patients' },
+        (payload) => {
+          console.log('Realtime change received!', payload);
+          const sd = activeTab === 'overview' ? getTodayStr() : startDate;
+          const ed = activeTab === 'overview' ? getTodayStr() : endDate;
+          fetchBookings(session.access_token, sd, ed);
+          fetchMetrics(session.access_token);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session, startDate, endDate, activeTab]);
+
   const fetchBookings = async (token, sd, ed) => {
     const actualSd = sd || (activeTab === 'overview' ? getTodayStr() : startDate);
     const actualEd = ed || (activeTab === 'overview' ? getTodayStr() : endDate);
