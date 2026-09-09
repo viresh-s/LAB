@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import Toast from '../components/Toast';
 import { 
   ShieldCheck, LayoutDashboard, Building2, Receipt, LogOut, 
-  PlusCircle, User, Phone, Mail, Lock, X, Trash2, Key, Users, FileText, Send, Eye, EyeOff, Menu
+  PlusCircle, User, Phone, Mail, Lock, X, Trash2, Key, Users, FileText, Send, Eye, EyeOff, Menu, Edit
 } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000'; 
