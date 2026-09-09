@@ -45,6 +45,10 @@ export default function Dashboard() {
   const [editForm, setEditForm] = useState({ name: '', phone: '', test_type: '' });
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Patient Delete Modal
+  const [deletingPatient, setDeletingPatient] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Walk-in Booking Modal
   const [isWalkinOpen, setIsWalkinOpen] = useState(false);
   const [walkinForm, setWalkinForm] = useState({ name: '', age: '', phone: '', test_type: '', collector_phone: '', payment_status: 'pending' });
@@ -282,10 +286,11 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeletePatient = async (patientId, patientName) => {
-    if (!window.confirm(`Are you sure you want to delete patient "${patientName}"? This action cannot be undone.`)) return;
+  const handleDeletePatient = async () => {
+    if (!deletingPatient) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/lab/patient/${patientId}`, {
+      const res = await fetch(`${API_BASE}/api/lab/patient/${deletingPatient.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
@@ -296,9 +301,12 @@ export default function Dashboard() {
       showToast('Patient deleted successfully!');
       fetchBookings(session.access_token);
       fetchMetrics(session.access_token);
+      setDeletingPatient(null);
     } catch (err) {
       console.error(err);
       showToast(`Error deleting patient: ${err.message}`, 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -697,7 +705,7 @@ export default function Dashboard() {
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDeletePatient(booking.id, booking.name)}
+                              onClick={() => setDeletingPatient(booking)}
                               className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
                               title="Delete Patient"
                             >
@@ -803,67 +811,103 @@ export default function Dashboard() {
 
       {/* Edit Patient Modal */}
       {editingPatient && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="p-5 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center flex-shrink-0">
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-6 border-b border-stone-100 bg-stone-50/50">
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                   <Pencil className="w-5 h-5 text-sky-600" /> Edit Patient
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5 font-mono truncate">ID: {editingPatient.id}</p>
-              </div>
+              </h2>
               <button onClick={() => setEditingPatient(null)} className="p-1.5 hover:bg-stone-200 rounded-full text-slate-400 hover:text-slate-700 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
-
+            
             <form onSubmit={handleSaveEdit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1.5">Patient Name</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1.5">Name</label>
                 <input
                   type="text"
                   required
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1.5">Phone Number</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1.5">Phone</label>
                 <input
                   type="text"
+                  required
                   value={editForm.phone}
                   onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
               </div>
+              
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-1.5">Test Type</label>
                 <input
                   type="text"
+                  required
                   value={editForm.test_type}
                   onChange={(e) => setEditForm({ ...editForm, test_type: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
               </div>
-
-              <div className="flex gap-3 pt-2">
+              
+              <div className="pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingPatient(null)}
-                  className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-slate-700 font-medium rounded-xl transition-colors"
+                  className="flex-1 px-4 py-2.5 text-slate-600 hover:bg-stone-100 rounded-xl font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="flex-1 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-medium py-2.5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" /> {savingEdit ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Patient Modal */}
+      {deletingPatient && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Delete Patient</h2>
+              <p className="text-slate-500 text-sm">
+                Are you sure you want to delete <strong>{deletingPatient.name}</strong>? This action cannot be undone.
+              </p>
+            </div>
+            
+            <div className="p-6 pt-0 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDeletingPatient(null)}
+                className="flex-1 px-4 py-2.5 text-slate-600 hover:bg-stone-100 rounded-xl font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeletePatient}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium py-2.5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}
