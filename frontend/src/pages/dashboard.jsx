@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { 
   LayoutDashboard, FileText, LogOut, 
   UploadCloud, Download, CheckCircle, Activity, ShieldCheck, CreditCard,
-  Users, Pencil, X, Save, Copy, Search, Eye, EyeOff, Menu
+  Users, Pencil, X, Save, Copy, Search, Eye, EyeOff, Menu, Trash2
 } from 'lucide-react';
 import Toast from '../components/Toast';
 
@@ -279,6 +279,26 @@ export default function Dashboard() {
       showToast(`Error: ${err.message}`, 'error');
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleDeletePatient = async (patientId, patientName) => {
+    if (!window.confirm(`Are you sure you want to delete patient "${patientName}"? This action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/lab/patient/${patientId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || 'Failed to delete patient');
+      }
+      showToast('Patient deleted successfully!');
+      fetchBookings(session.access_token);
+      fetchMetrics(session.access_token);
+    } catch (err) {
+      console.error(err);
+      showToast(`Error deleting patient: ${err.message}`, 'error');
     }
   };
 
@@ -675,6 +695,13 @@ export default function Dashboard() {
                               title="Edit Patient"
                             >
                               <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePatient(booking.id, booking.name)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                              title="Delete Patient"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>

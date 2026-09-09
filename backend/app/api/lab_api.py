@@ -568,6 +568,44 @@ async def update_patient(
         raise HTTPException(500, "Failed to update patient.")
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 6.5 Delete Patient
+# ─────────────────────────────────────────────────────────────────────────────
+@router.delete("/patient/{patient_id}")
+async def delete_patient(
+    patient_id: str,
+    lab_id: str = Depends(get_current_lab_id),
+):
+    """
+    Delete a patient record.
+    Verifies booking ownership before deleting.
+    """
+    if supabase is None:
+        raise HTTPException(503, "Database not configured.")
+
+    try:
+        # Verify ownership
+        res = (
+            supabase.table("patients")
+            .select("lab_id")
+            .eq("id", patient_id)
+            .single()
+            .execute()
+        )
+        if not res.data:
+            raise HTTPException(404, "Patient not found.")
+        verify_booking_ownership(res.data["lab_id"], lab_id)
+        
+        # Delete the record
+        supabase.table("patients").delete().eq("id", patient_id).execute()
+        log.info("[lab_api] Patient %s deleted by lab %s", patient_id, lab_id)
+        return {"status": "success", "message": "Patient deleted successfully."}
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error("[lab_api] Patient delete error: %s", e)
+        raise HTTPException(500, "Failed to delete patient.")
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 7. Financials (Protected)
 # ─────────────────────────────────────────────────────────────────────────────
 from fastapi import Header
