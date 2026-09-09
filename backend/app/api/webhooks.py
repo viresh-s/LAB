@@ -490,6 +490,7 @@ class WalkinRequest(BaseModel):
     phone: str
     test_type: str
     collector_phone: str = ""   # optional — if provided, WhatsApp alert is sent
+    payment_status: str = "pending"
 
 
 @router.post("/walkin")
@@ -499,8 +500,8 @@ async def walkin_booking(body: WalkinRequest, token_lab_id: str = Depends(get_cu
     sends a WhatsApp message to the assigned collector with patient details.
     """
     log.info(
-        "[walkin] New walk-in: name=%s test=%s lab=%s",
-        body.name, body.test_type, token_lab_id,
+        "[walkin] New walk-in: name=%s test=%s lab=%s payment_status=%s",
+        body.name, body.test_type, token_lab_id, body.payment_status,
     )
 
     graph = create_walkin_graph()
@@ -515,6 +516,7 @@ async def walkin_booking(body: WalkinRequest, token_lab_id: str = Depends(get_cu
             age=body.age,
             phone=body.phone,
             test_type=body.test_type,
+            payment_status=body.payment_status,
         ),
         "missing_fields":   [],
         "dispatch_success": False,

@@ -253,7 +253,7 @@ def check_and_dispatch(state: AgentState) -> Literal["wa_dispatch_report", "end"
     Routing function: decides whether to send the report to the patient.
 
     Business rule (STRICT — all must be true):
-      ✅ payment_status == 'paid'   AND   ✅ report_link is not None
+      ✅ payment_status in ('paid', 'waived')   AND   ✅ report_link is not None
         → route to wa_dispatch_report
 
       ❌ Any condition missing
@@ -263,16 +263,16 @@ def check_and_dispatch(state: AgentState) -> Literal["wa_dispatch_report", "end"
     report_link = state.get("report_link") or patient_data.report_link
     payment_status = patient_data.payment_status
 
-    is_paid = (payment_status == "paid")
+    is_paid_or_waived = (payment_status in ["paid", "waived"])
     has_report = bool(report_link)
 
     log.info(
-        "[check_and_dispatch] paid=%s, has_report=%s → %s",
-        is_paid, has_report,
-        "SEND" if (is_paid and has_report) else "SKIP",
+        "[check_and_dispatch] paid_or_waived=%s, has_report=%s → %s",
+        is_paid_or_waived, has_report,
+        "SEND" if (is_paid_or_waived and has_report) else "SKIP",
     )
 
-    if is_paid and has_report:
+    if is_paid_or_waived and has_report:
         return "wa_dispatch_report"
     return "end"
 

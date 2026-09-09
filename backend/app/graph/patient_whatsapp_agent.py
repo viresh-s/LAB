@@ -30,7 +30,7 @@ class PatientExtractionSchema(BaseModel):
     )
     name: Optional[str] = Field(default=None, description="The name of the patient. Extract it if mentioned, even if it's just a first name. Must be null if not mentioned. DO NOT guess.")
     age: Optional[int] = Field(default=None, description="The age of the patient in years. Must be null if not mentioned. DO NOT guess.")
-    test_type: Optional[str] = Field(default=None, description="The specific medical test requested. Must be null if not mentioned. DO NOT guess.")
+    test_type: Optional[str] = Field(default=None, description="The specific medical test(s) requested (comma-separated if multiple). Must be null if not mentioned. DO NOT guess.")
     booking_id: Optional[str] = Field(default=None, description="The booking ID if mentioned.")
     patient_phone: Optional[str] = Field(default=None, description="The 10-digit phone number of the patient. MUST be null unless the user has explicitly provided a number or explicitly agreed to use their WhatsApp number.")
 

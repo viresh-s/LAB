@@ -504,7 +504,7 @@ export default function MasterDashboard() {
                 </label>
                 <div className="space-y-3">
                   {newLab.services.map((service, index) => (
-                    <div key={index} className="flex gap-4 items-center">
+                    <div key={index} className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4 items-center w-full">
                       <input 
                         type="text" 
                         value={service.name}
@@ -514,29 +514,31 @@ export default function MasterDashboard() {
                           setNewLab({...newLab, services: updated});
                         }}
                         placeholder="e.g. Complete Blood Count (CBC)"
-                        className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                        className="flex-1 min-w-[120px] bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                       />
-                      <input 
-                        type="number" 
-                        value={service.price}
-                        onChange={(e) => {
-                          const updated = [...newLab.services];
-                          updated[index].price = e.target.value;
-                          setNewLab({...newLab, services: updated});
-                        }}
-                        placeholder="₹ Price"
-                        className="w-32 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
-                      />
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          const updated = newLab.services.filter((_, i) => i !== index);
-                          setNewLab({...newLab, services: updated});
-                        }}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-2 items-center">
+                        <input 
+                          type="number" 
+                          value={service.price}
+                          onChange={(e) => {
+                            const updated = [...newLab.services];
+                            updated[index].price = e.target.value;
+                            setNewLab({...newLab, services: updated});
+                          }}
+                          placeholder="₹ Price"
+                          className="w-24 sm:w-32 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const updated = newLab.services.filter((_, i) => i !== index);
+                            setNewLab({...newLab, services: updated});
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button 
@@ -576,7 +578,7 @@ export default function MasterDashboard() {
                     <th className="px-6 py-4 font-medium">Collector Phone</th>
                     <th className="px-6 py-4 font-medium">Registered On</th>
                     <th className="px-6 py-4 font-medium text-center">Extended Storage</th>
-                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                    <th className="px-6 py-4 font-medium text-right sticky right-0 bg-stone-50 z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -620,28 +622,27 @@ export default function MasterDashboard() {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
+                        <td className="px-6 py-4 text-right flex items-center justify-end gap-2 sticky right-0 bg-white group-hover:bg-stone-50/80 z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
                           <button 
                             onClick={() => {
                               // Always prompt for a password; the backend will check it against financial_password or login password.
                               setFinancialPasswordPrompt({ show: true, lab: lab, password: '', showPassword: false, loading: false });
                             }}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-lg text-sm text-slate-700 font-medium transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-lg text-xs sm:text-sm text-slate-700 font-medium transition-colors"
                           >
-                            <Receipt className="w-4 h-4 text-slate-500" /> Manage & Bill
+                            <Receipt className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" /> <span className="hidden sm:inline">Manage & Bill</span>
                           </button>
                           <button 
                             onClick={() => setLabToEdit(lab)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg text-sm text-sky-700 font-medium transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg text-xs sm:text-sm text-sky-700 font-medium transition-colors"
                           >
-                            Edit
+                            <span className="hidden sm:inline">Edit</span><Edit className="w-3 h-3 sm:hidden" />
                           </button>
                           <button 
                             onClick={() => setLabToDelete(lab)}
-                            className="inline-flex items-center gap-2 px-3 py-2 hover:bg-rose-50 rounded-lg text-sm text-rose-500 transition-colors"
-                            title="Delete Lab"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs sm:text-sm text-rose-700 font-medium transition-colors"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <span className="hidden sm:inline">Delete</span><Trash2 className="w-3 h-3 sm:hidden" />
                           </button>
                         </td>
                       </tr>
@@ -943,7 +944,7 @@ export default function MasterDashboard() {
                   </label>
                   <div className="space-y-3">
                     {(labToEdit.services || []).map((service, index) => (
-                      <div key={index} className="flex gap-4 items-center">
+                      <div key={index} className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4 items-center w-full">
                         <input 
                           type="text" 
                           value={service.name}
@@ -954,31 +955,33 @@ export default function MasterDashboard() {
                             setLabToEdit({...labToEdit, services: updated});
                           }}
                           placeholder="e.g. Complete Blood Count (CBC)"
-                          className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                          className="flex-1 min-w-[120px] px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                         />
-                        <input 
-                          type="number" 
-                          value={service.price}
-                          onChange={(e) => {
-                            const currentServices = labToEdit.services || [];
-                            const updated = [...currentServices];
-                            updated[index].price = e.target.value;
-                            setLabToEdit({...labToEdit, services: updated});
-                          }}
-                          placeholder="₹ Price"
-                          className="w-32 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            const currentServices = labToEdit.services || [];
-                            const updated = currentServices.filter((_, i) => i !== index);
-                            setLabToEdit({...labToEdit, services: updated});
-                          }}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-2 items-center">
+                          <input 
+                            type="number" 
+                            value={service.price}
+                            onChange={(e) => {
+                              const currentServices = labToEdit.services || [];
+                              const updated = [...currentServices];
+                              updated[index].price = e.target.value;
+                              setLabToEdit({...labToEdit, services: updated});
+                            }}
+                            placeholder="₹ Price"
+                            className="w-24 sm:w-32 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const currentServices = labToEdit.services || [];
+                              const updated = currentServices.filter((_, i) => i !== index);
+                              setLabToEdit({...labToEdit, services: updated});
+                            }}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                     <button 

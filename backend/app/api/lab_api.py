@@ -149,7 +149,7 @@ async def export_bookings(
             report_link = booking.get("report_link")
             payment_status = booking.get("payment_status", "pending")
             
-            if report_link and payment_status != "paid" and raw_status != "report_delivered":
+            if report_link and payment_status not in ("paid", "waived") and raw_status != "report_delivered":
                 display_status = "Report Ready"
             elif raw_status == "report_delivered":
                 display_status = "Delivered"

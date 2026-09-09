@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   // Walk-in Booking Modal
   const [isWalkinOpen, setIsWalkinOpen] = useState(false);
-  const [walkinForm, setWalkinForm] = useState({ name: '', age: '', phone: '', test_type: '', collector_phone: '' });
+  const [walkinForm, setWalkinForm] = useState({ name: '', age: '', phone: '', test_type: '', collector_phone: '', payment_status: 'pending' });
   const [creatingWalkin, setCreatingWalkin] = useState(false);
 
   // Toast Notification
@@ -301,7 +301,8 @@ export default function Dashboard() {
           age: parseInt(walkinForm.age, 10),
           phone: walkinForm.phone,
           test_type: walkinForm.test_type,
-          collector_phone: walkinForm.collector_phone // Optional
+          collector_phone: walkinForm.collector_phone, // Optional
+          payment_status: walkinForm.payment_status
         })
       });
 
@@ -314,7 +315,7 @@ export default function Dashboard() {
       
       showToast('Walk-in booking created successfully!');
       setIsWalkinOpen(false);
-      setWalkinForm({ name: '', age: '', phone: '', test_type: '', collector_phone: '' });
+      setWalkinForm({ name: '', age: '', phone: '', test_type: '', collector_phone: '', payment_status: 'pending' });
       fetchBookings(session.access_token);
       fetchMetrics(session.access_token);
     } catch (err) {
@@ -909,6 +910,30 @@ export default function Dashboard() {
                   className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
                   placeholder="Leave empty to use lab default"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Payment Setting</label>
+                <div className="flex bg-stone-100 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setWalkinForm({...walkinForm, payment_status: 'pending'})}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${walkinForm.payment_status !== 'waived' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    Paid Person
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWalkinForm({...walkinForm, payment_status: 'waived'})}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${walkinForm.payment_status === 'waived' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    Not Payment (Free)
+                  </button>
+                </div>
+                {walkinForm.payment_status === 'waived' && (
+                  <p className="text-xs text-amber-600 mt-2 font-medium bg-amber-50 p-2 rounded-lg border border-amber-100">
+                    Reports will be sent immediately upon upload without requiring payment.
+                  </p>
+                )}
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-stone-100">
                 <button 

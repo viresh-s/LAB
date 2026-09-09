@@ -38,7 +38,7 @@ class ExtractionSchema(BaseModel):
     name: Optional[str] = Field(default=None, description="The full name of the patient. Must be null if not mentioned.")
     age: Optional[int] = Field(default=None, description="The age of the patient in years. Must be null if not mentioned.")
     phone: Optional[str] = Field(default=None, description="10-digit Indian mobile number. Must be null if not mentioned.")
-    test_type: Optional[str] = Field(default=None, description="The specific medical test requested. Must be null if not mentioned.")
+    test_type: Optional[str] = Field(default=None, description="The specific medical test(s) requested (comma-separated if multiple). Must be null if not mentioned.")
 
 async def extract_voice_data(state: AgentState) -> AgentState:
     """

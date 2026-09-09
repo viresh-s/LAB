@@ -11,7 +11,7 @@ class PatientData(BaseModel):
     name: Optional[str] = Field(default=None, max_length=100, description="The full name of the patient")
     age: Optional[int] = Field(default=None, ge=0, le=150, description="The age of the patient in years")
     phone: Optional[str] = Field(default=None, max_length=20, description="The 10-digit Indian mobile number")
-    test_type: Optional[str] = Field(default=None, max_length=150, description="The specific medical test requested, e.g., CBC, Lipid Profile")
+    test_type: Optional[str] = Field(default=None, max_length=150, description="The specific medical test(s) requested, e.g., CBC, Lipid Profile")
     status: str = Field(default="booked", max_length=50, description="Current booking status: booked, sample_collected, delivered")
     payment_status: str = Field(default="pending", max_length=50, description="Payment status: pending or paid")
     report_link: Optional[str] = Field(default=None, max_length=500, description="URL to the uploaded PDF report")
